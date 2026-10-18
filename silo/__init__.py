@@ -1,6 +1,6 @@
-"""e2b_lite: a tiny client SDK. Thin wrapper over the control plane + envd.
+"""silo: a tiny client SDK. Thin wrapper over the control plane + envd.
 
-    from e2b_lite import Sandbox
+    from silo import Sandbox
 
     with Sandbox.create(timeout=120) as sbx:
         r = sbx.commands.run("echo hello")
@@ -230,8 +230,8 @@ class Sandbox:
         api_url: Optional[str] = None,
         api_key: Optional[str] = None,
     ) -> "Sandbox":
-        api_url = api_url or os.environ.get("E2B_LITE_API_URL", DEFAULT_API_URL)
-        api_key = api_key or os.environ.get("E2B_LITE_API_KEY", "dev-key")
+        api_url = api_url or os.environ.get("SILO_API_URL", DEFAULT_API_URL)
+        api_key = api_key or os.environ.get("SILO_API_KEY", "dev-key")
         r = httpx.post(
             f"{api_url.rstrip('/')}/sandboxes",
             json={"timeout": timeout, "cpus": cpus, "memory_mb": memory_mb, "metadata": metadata or {}},
@@ -244,8 +244,8 @@ class Sandbox:
 
     @classmethod
     def list(cls, *, api_url: Optional[str] = None, api_key: Optional[str] = None) -> list[dict]:
-        api_url = api_url or os.environ.get("E2B_LITE_API_URL", DEFAULT_API_URL)
-        api_key = api_key or os.environ.get("E2B_LITE_API_KEY", "dev-key")
+        api_url = api_url or os.environ.get("SILO_API_URL", DEFAULT_API_URL)
+        api_key = api_key or os.environ.get("SILO_API_KEY", "dev-key")
         r = httpx.get(f"{api_url.rstrip('/')}/sandboxes", headers={"X-API-KEY": api_key})
         _raise_for_status(r)
         return r.json()

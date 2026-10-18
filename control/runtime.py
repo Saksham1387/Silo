@@ -24,7 +24,7 @@ ROOT = Path(__file__).resolve().parent.parent
 
 
 class DockerRuntime:
-    def __init__(self, image: str = "e2b-lite-envd"):
+    def __init__(self, image: str = "silo-envd"):
         import docker  # imported lazily so LocalRuntime works without it
 
         self.client = docker.from_env()
@@ -35,8 +35,8 @@ class DockerRuntime:
         container = self.client.containers.run(
             self.image,
             detach=True,
-            name=f"e2b-lite-{sandbox_id}",
-            labels={"e2b-lite": "1", "e2b-lite.id": sandbox_id},
+            name=f"silo-{sandbox_id}",
+            labels={"silo": "1", "silo.id": sandbox_id},
             environment={"ENVD_TOKEN": token},
             # publish envd on a random port, bound to loopback only
             ports={f"{ENVD_PORT}/tcp": ("127.0.0.1", None)},
@@ -55,13 +55,13 @@ class DockerRuntime:
         import docker
 
         try:
-            self.client.containers.get(f"e2b-lite-{sandbox_id}").remove(force=True)
+            self.client.containers.get(f"silo-{sandbox_id}").remove(force=True)
         except docker.errors.NotFound:
             pass
 
     def cleanup_orphans(self) -> None:
         """State is in memory, so after a control-plane restart old containers are unreachable. Remove them."""
-        for c in self.client.containers.list(all=True, filters={"label": "e2b-lite=1"}):
+        for c in self.client.containers.list(all=True, filters={"label": "silo=1"}):
             c.remove(force=True)
 
 
@@ -75,7 +75,7 @@ class LocalRuntime:
         with socket.socket() as s:
             s.bind(("127.0.0.1", 0))
             port = s.getsockname()[1]
-        home = tempfile.mkdtemp(prefix=f"e2b-lite-{sandbox_id}-")
+        home = tempfile.mkdtemp(prefix=f"silo-{sandbox_id}-")
         proc = subprocess.Popen(
             [sys.executable, "-m", "uvicorn", "--app-dir", str(ROOT / "envd"), "server:app",
              "--host", "127.0.0.1", "--port", str(port), "--log-level", "warning"],
@@ -97,8 +97,8 @@ class LocalRuntime:
 
 
 def make_runtime():
-    kind = os.environ.get("E2B_LITE_RUNTIME", "docker")
+    kind = os.environ.get("SILO_RUNTIME", "docker")
     if kind == "local":
         print("WARNING: using LocalRuntime - sandboxes are NOT isolated (dev only)")
         return LocalRuntime()
-    return DockerRuntime(os.environ.get("E2B_LITE_IMAGE", "e2b-lite-envd"))
+    return DockerRuntime(os.environ.get("SILO_IMAGE", "silo-envd"))

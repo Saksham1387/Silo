@@ -11,7 +11,7 @@ from pathlib import Path
 import httpx
 import pytest
 
-from e2b_lite import CommandExitError, Sandbox, SandboxError
+from silo import CommandExitError, Sandbox, SandboxError
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -25,7 +25,7 @@ def api():
     proc = subprocess.Popen(
         [sys.executable, "-m", "uvicorn", "control.main:app", "--port", str(port), "--log-level", "warning"],
         cwd=ROOT,
-        env={**os.environ, "E2B_LITE_RUNTIME": "local", "E2B_LITE_API_KEY": "test-key"},
+        env={**os.environ, "SILO_RUNTIME": "local", "SILO_API_KEY": "test-key"},
     )
     for _ in range(50):
         try:

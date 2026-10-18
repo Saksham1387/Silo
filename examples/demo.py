@@ -1,7 +1,7 @@
 """Demo. Start the control plane first:  uvicorn control.main:app --port 8000"""
 import sys
 
-from e2b_lite import CommandExitError, Sandbox
+from silo import CommandExitError, Sandbox
 
 with Sandbox.create(timeout=120) as sbx:
     print("sandbox:", sbx.id)

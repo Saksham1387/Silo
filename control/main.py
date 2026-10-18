@@ -23,9 +23,9 @@ from starlette.background import BackgroundTask
 
 from .runtime import make_runtime
 
-API_KEY = os.environ.get("E2B_LITE_API_KEY", "dev-key")
-MAX_SANDBOXES = int(os.environ.get("E2B_LITE_MAX_SANDBOXES", "20"))
-MAX_TIMEOUT = int(os.environ.get("E2B_LITE_MAX_TIMEOUT", "3600"))
+API_KEY = os.environ.get("SILO_API_KEY", "dev-key")
+MAX_SANDBOXES = int(os.environ.get("SILO_MAX_SANDBOXES", "20"))
+MAX_TIMEOUT = int(os.environ.get("SILO_MAX_TIMEOUT", "3600"))
 
 runtime = None  # created in lifespan so importing this module has no side effects
 http: httpx.AsyncClient = None
@@ -75,7 +75,7 @@ async def lifespan(app: FastAPI):
     await http.aclose()
 
 
-app = FastAPI(title="e2b-lite control plane", lifespan=lifespan)
+app = FastAPI(title="silo control plane", lifespan=lifespan)
 
 
 def require_api_key(x_api_key: str = Header(default="")) -> None:
